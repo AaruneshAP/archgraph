@@ -1405,6 +1405,7 @@
       resultsGroup.style.display = 'none';
       narrationBox.style.display = 'none';
       if (collapseBanner) collapseBanner.style.display = 'none';
+      if (diagramWrapper) diagramWrapper.style.transform = 'none';
 
       try {
         const resp = await fetch('/api/analyze', {
@@ -1449,6 +1450,16 @@
           }
         } else {
           if (collapseBanner) collapseBanner.style.display = 'none';
+        }
+
+        // Explicitly reset diagram-wrapper transform & pan/zoom state to neutral
+        // before mermaid.run() so Mermaid's internal getBoundingClientRect()
+        // measurements are never taken against a previously-scaled container.
+        zoomScale = 1;
+        panX = 0;
+        panY = 0;
+        if (diagramWrapper) {
+          diagramWrapper.style.transform = 'none';
         }
 
         // Render Mermaid Diagram
