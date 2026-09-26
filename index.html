@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Diagram Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Mermaid.js loaded strictly from cdnjs.cloudflare.com as required -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #0A0D12;
+      color: #F2F1ED;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+    }
+
+    /* Main Canvas Column */
+    .main-column {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Header Section */
+    .header-section {
+      flex-shrink: 0;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    h1.app-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #F2F1ED;
+    }
+
+    .breadcrumb {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #8B93A3;
+    }
+
+    .accent-rule {
+      margin-top: 14px;
+      height: 2px;
+      width: 100%;
+      background: #3B82C4;
+    }
+
+    /* Input & Controls Row */
+    .controls-row {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .input-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+      max-width: 680px;
+    }
+
+    .url-input-wrapper {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .github-icon-badge {
+      position: absolute;
+      left: 12px;
+      color: #8B93A3;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .url-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: #F2F1ED;
+      background: #12161D;
+      border: 1px solid #232833;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .url-input:focus {
+      border-color: #3B82C4;
+      box-shadow: 0 0 0 2px rgba(59, 130, 196, 0.2);
+    }
+
+    .url-input::placeholder {
+      color: #555D6E;
+    }
+
+    .narrate-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8B93A3;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .narrate-toggle input {
+      accent-color: #3B82C4;
+      cursor: pointer;
+    }
+
+    .btn-visualize {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      background: #3B82C4;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .btn-visualize:hover {
+      background: #4A96DD;
+    }
+
+    .btn-visualize:disabled {
+      background: #232833;
+      color: #555D6E;
+      cursor: not-allowed;
+    }
+
+    /* Actions & Stats right group */
+    .results-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .stats-group {
+      display: flex;
+      gap: 18px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: #8B93A3;
+    }
+
+    .stats-group .stat-num {
+      color: #3B82C4;
+      font-weight: 600;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-outline {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid #232833;
+      background: transparent;
+      color: #F2F1ED;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .btn-outline:hover {
+      border-color: #4A5568;
+      background: #161B22;
+    }
+
+    .btn-export {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      background: #3B82C4;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-export:hover {
+      background: #4A96DD;
+    }
+
+    /* Canvas Area */
+    .canvas-container {
+      flex-grow: 1;
+      margin-top: 14px;
+      position: relative;
+      background: #0A0D12;
+      border: 1px solid #161B22;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Native Fullscreen API Styling */
+    .canvas-container:fullscreen,
+    .canvas-container:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      background: #0A0D12;
+    }
+
+    #diagram-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    #diagram-viewport.panning {
+      cursor: grabbing;
+    }
+
+    #diagram-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    #diagram-wrapper svg {
+      max-width: none !important;
+      max-height: none !important;
+      display: block;
+    }
+
+    /* Floating Pan/Zoom Controls (Bottom-Right) */
+    .canvas-controls {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(18, 22, 29, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #232833;
+      border-radius: 8px;
+      padding: 4px 6px;
+      z-index: 50;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .ctrl-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: #D3D8E2;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      background: #1C2330;
+      color: #3B82C4;
+    }
+
+    .ctrl-btn:active {
+      background: #232833;
+    }
+
+    .zoom-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #8B93A3;
+      min-width: 44px;
+      text-align: center;
+      padding: 0 4px;
+      user-select: none;
+    }
+
+    /* Level-of-Detail Collapse Banner (Top of Canvas) */
+    .collapse-banner {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(18, 22, 29, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #3B82C4;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #F2F1ED;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .collapse-banner .collapse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3B82C4;
+      flex-shrink: 0;
+      box-shadow: 0 0 8px #3B82C4;
+    }
+
+    /* Exit Fullscreen Affordance (Top-Right) */
+    .fullscreen-exit-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(18, 22, 29, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #232833;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #F2F1ED;
+      cursor: pointer;
+      z-index: 60;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .fullscreen-exit-btn:hover {
+      background: #1C2330;
+      border-color: #3B82C4;
+    }
+
+    :fullscreen .fullscreen-exit-btn,
+    :-webkit-full-screen .fullscreen-exit-btn {
+      display: flex;
+    }
+
+    /* Placeholder / Empty State */
+    .empty-state {
+      max-width: 520px;
+      text-align: center;
+      padding: 40px;
+      background: #10141A;
+      border: 1px solid #232833;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .empty-state-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: #161B22;
+      border: 1px solid #232833;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3B82C4;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #F2F1ED;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      color: #8B93A3;
+      line-height: 1.5;
+    }
+
+    .quick-demos {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .quick-demo-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #232833;
+      background: #161B22;
+      color: #8B93A3;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .quick-demo-btn:hover {
+      border-color: #3B82C4;
+      color: #F2F1ED;
+    }
+
+    /* Loading State */
+    .loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(59, 130, 196, 0.15);
+      border-top-color: #3B82C4;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #F2F1ED;
+    }
+
+    .loading-subtext {
+      font-size: 12px;
+      color: #8B93A3;
+    }
+
+    /* Error State */
+    .error-state {
+      display: none;
+      max-width: 500px;
+      padding: 24px 30px;
+      background: #181214;
+      border: 1px solid #4D2024;
+      border-radius: 8px;
+      text-align: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .error-icon {
+      color: #E5534B;
+    }
+
+    .error-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #F2F1ED;
+    }
+
+    .error-message {
+      font-size: 13px;
+      color: #E5534B;
+      line-height: 1.4;
+    }
+
+    /* Right Sidebar (Fixed 300px) */
+    .right-sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      height: 100vh;
+      background: #10141A;
+      border-left: 1px solid #232833;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Narration Card */
+    .narration-box {
+      display: none;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: #12161D;
+      border: 1px solid #232833;
+      border-left: 3px solid #3B82C4;
+      border-radius: 6px;
+    }
+
+    .narration-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #3B82C4;
+      margin-bottom: 8px;
+    }
+
+    .narration-content {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #D3D8E2;
+    }
+
+    /* Legend Section */
+    .legend-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8B93A3;
+      margin-bottom: 16px;
+    }
+
+    .legend-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #555D6E;
+      margin-top: 16px;
+      margin-bottom: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #D3D8E2;
+    }
+
+    .swatch-node {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .swatch-node.module { background: #E8874A; }
+    .swatch-node.class { background: #8B6FD1; }
+    .swatch-node.function { background: #2FA89C; }
+
+    .swatch-edge {
+      width: 28px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .swatch-line {
+      width: 100%;
+      height: 2px;
+    }
+
+    .swatch-line.contains { background: #414957; height: 2px; }
+    .swatch-line.inherits { border-top: 2px dashed #4A5568; }
+    .swatch-line.imports { border-top: 2px dotted #4A5568; }
+    .swatch-line.calls { background: #414957; height: 1px; opacity: 0.55; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #1C212B;
+      font-size: 11px;
+      color: #555D6E;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    /* Modal for View Source */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      width: 720px;
+      max-width: 90vw;
+      max-height: 80vh;
+      background: #12161D;
+      border: 1px solid #232833;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #232833;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F2F1ED;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #8B93A3;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow: auto;
+      flex-grow: 1;
+    }
+
+    .modal-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #D3D8E2;
+      white-space: pre;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #161B22;
+      border: 1px solid #3B82C4;
+      color: #F2F1ED;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 2000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Card styling inside Mermaid node labels */
+    .node-card {
+      width: 160px;
+      height: 80px;
+      box-sizing: border-box;
+      border: 1px solid #232833;
+      border-radius: 8px;
+      background: #12161D;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 8px 12px;
+      gap: 3px;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .node-type {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .node-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F2F1ED;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 132px;
+    }
+
+    .node-sub {
+      font-size: 10px;
+      color: #8B93A3;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 132px;
+    }
+
+    /* Hide default Mermaid rect/polygon wrappers around node cards */
+    .node rect, .node polygon, .node path.label-container {
+      fill: transparent !important;
+      stroke: transparent !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main Canvas Column -->
+  <main class="main-column">
+    <div class="header-section">
+      <div class="title-row">
+        <div>
+          <h1 class="app-title">Architecture Diagram Visualizer</h1>
+          <div class="breadcrumb">Live GitHub Codebase Architecture Explorer</div>
+        </div>
+      </div>
+
+      <div class="accent-rule"></div>
+
+      <div class="controls-row">
+        <!-- Input Form -->
+        <form id="analyze-form" class="input-form">
+          <div class="url-input-wrapper">
+            <span class="github-icon-badge">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+            </span>
+            <input
+              id="repo-url"
+              type="text"
+              class="url-input"
+              placeholder="https://github.com/owner/repo"
+              required
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+
+          <label class="narrate-toggle" title="Generate AI architectural narration using Groq">
+            <input id="narrate-checkbox" type="checkbox" />
+            <span>Narrate with Groq</span>
+          </label>
+
+          <button id="btn-submit" type="submit" class="btn-visualize">
+            <span>Visualize</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Stats & Actions (shown when result available) -->
+        <div id="results-group" class="results-group" style="display: none;">
+          <div class="stats-group">
+            <div>Files: <span id="stat-files" class="stat-num">0</span></div>
+            <div>Nodes: <span id="stat-nodes" class="stat-num">0</span></div>
+            <div>Edges: <span id="stat-edges" class="stat-num">0</span></div>
+          </div>
+
+          <div class="btn-group">
+            <button id="btn-fullscreen" class="btn-outline" type="button" title="Toggle Fullscreen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+              </svg>
+              <span>Fullscreen</span>
+            </button>
+            <button id="btn-view-src" class="btn-outline" type="button">View source</button>
+            <button id="btn-copy-mermaid" class="btn-outline" type="button">Copy Mermaid</button>
+            <button id="btn-export-svg" class="btn-export" type="button">Export SVG</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div id="canvas-container" class="canvas-container">
+      <!-- Empty / Initial State -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-state-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </div>
+        <div class="empty-title">Visualize Any Python Repository</div>
+        <div class="empty-desc">
+          Enter a public GitHub repository URL above to parse its AST into an interactive architecture diagram.
+        </div>
+        <div class="quick-demos">
+          <button type="button" class="quick-demo-btn" data-url="https://github.com/bottlepy/bottle">bottlepy/bottle</button>
+          <button type="button" class="quick-demo-btn" data-url="https://github.com/pallets/click">pallets/click</button>
+          <button type="button" class="quick-demo-btn" data-url="https://github.com/encode/starlette">encode/starlette</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-state" class="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-text">Analyzing Repository Architecture...</div>
+        <div class="loading-subtext">Fetching AST & assembling dependency graph</div>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-state" class="error-state">
+        <svg class="error-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div class="error-title">Unable to Analyze Repository</div>
+        <div id="error-message" class="error-message">Repo not found or private</div>
+        <button id="btn-retry" type="button" class="btn-outline" style="margin-top: 6px;">Try Again</button>
+      </div>
+
+      <!-- Visible LoD Collapse Banner -->
+      <div id="collapse-banner" class="collapse-banner" style="display: none;">
+        <span class="collapse-dot"></span>
+        <span id="collapse-banner-text">Showing modules and classes only — 0 functions hidden (repo exceeds 150 nodes)</span>
+      </div>
+
+      <!-- Rendered Diagram Viewport -->
+      <div id="diagram-viewport" style="display: none;">
+        <div id="diagram-wrapper">
+          <div id="diagram-content" class="mermaid"></div>
+        </div>
+      </div>
+
+      <!-- Exit Fullscreen Affordance (Visible only in fullscreen mode) -->
+      <button id="btn-exit-fullscreen" class="fullscreen-exit-btn" type="button" title="Exit Fullscreen (ESC)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Exit Fullscreen</span>
+      </button>
+
+      <!-- Floating Pan/Zoom Controls (Bottom-Right) -->
+      <div id="canvas-controls" class="canvas-controls" style="display: none;">
+        <button id="btn-zoom-in" class="ctrl-btn" type="button" title="Zoom In (+)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button id="btn-zoom-out" class="ctrl-btn" type="button" title="Zoom Out (−)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button id="btn-zoom-reset" class="ctrl-btn" type="button" title="Fit to Screen / Reset">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+        <div id="zoom-label" class="zoom-label">100%</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Sidebar (Fixed 300px) -->
+  <aside class="right-sidebar">
+    <!-- Optional Groq Narration Card -->
+    <div id="narration-box" class="narration-box">
+      <div class="narration-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span>Architectural Narration</span>
+      </div>
+      <div id="narration-text" class="narration-content"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-title">Legend</div>
+
+    <div class="legend-group-label">Node Types</div>
+    <div class="legend-item">
+      <div class="swatch-node module">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+          <path d="M16.5 9.4 7.55 4.24a1.78 1.78 0 0 0-2.5 1.55v12.42a1.78 1.78 0 0 0 2.5 1.55L16.5 14.6a1.78 1.78 0 0 0 0-3.2z"/>
+        </svg>
+      </div>
+      <span>Module</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch-node class">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+          <rect x="3" y="3" width="18" height="18" rx="4"/>
+          <path d="M9 9h6v6H9z"/>
+        </svg>
+      </div>
+      <span>Class</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch-node function">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+          <path d="M18 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+          <path d="M8 12h8"/>
+          <path d="M12 8v8"/>
+        </svg>
+      </div>
+      <span>Function</span>
+    </div>
+
+    <div class="legend-group-label">Edge Relationships</div>
+    <div class="legend-item">
+      <div class="swatch-edge">
+        <div class="swatch-line contains"></div>
+      </div>
+      <span>Contains</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch-edge">
+        <div class="swatch-line inherits"></div>
+      </div>
+      <span>Inherits</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch-edge">
+        <div class="swatch-line imports"></div>
+      </div>
+      <span>Imports</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch-edge">
+        <div class="swatch-line calls"></div>
+      </div>
+      <span>Calls (55% opacity)</span>
+    </div>
+
+    <div class="sidebar-footer">
+      Generated client-side via Mermaid.js & ELK layout engine.
+    </div>
+  </aside>
+
+  <!-- Modal for View Source -->
+  <div id="modal-source" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Generated Mermaid Source</h3>
+        <button id="btn-modal-close" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-code" class="modal-code"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Copied to clipboard!</div>
+
+  <script>
+    // Initialize Mermaid
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose',
+      maxTextSize: 2000000,
+      maxEdges: 20000,
+      flowchart: {
+        defaultRenderer: 'elk',
+        nodeSpacing: 30,
+        rankSpacing: 40,
+        curve: 'linear',
+        useMaxWidth: false
+      }
+    });
+
+    let currentMermaidSource = '';
+
+    // DOM Elements
+    const form = document.getElementById('analyze-form');
+    const inputUrl = document.getElementById('repo-url');
+    const checkboxNarrate = document.getElementById('narrate-checkbox');
+    const btnSubmit = document.getElementById('btn-submit');
+    const resultsGroup = document.getElementById('results-group');
+
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const errorMessage = document.getElementById('error-message');
+    const canvasContainer = document.getElementById('canvas-container');
+    const diagramViewport = document.getElementById('diagram-viewport');
+    const diagramWrapper = document.getElementById('diagram-wrapper');
+    const canvasControls = document.getElementById('canvas-controls');
+    const btnZoomIn = document.getElementById('btn-zoom-in');
+    const btnZoomOut = document.getElementById('btn-zoom-out');
+    const btnZoomReset = document.getElementById('btn-zoom-reset');
+    const zoomLabel = document.getElementById('zoom-label');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const btnExitFullscreen = document.getElementById('btn-exit-fullscreen');
+    const collapseBanner = document.getElementById('collapse-banner');
+    const collapseBannerText = document.getElementById('collapse-banner-text');
+
+    const narrationBox = document.getElementById('narration-box');
+    const narrationText = document.getElementById('narration-text');
+
+    const statFiles = document.getElementById('stat-files');
+    const statNodes = document.getElementById('stat-nodes');
+    const statEdges = document.getElementById('stat-edges');
+
+    const btnViewSrc = document.getElementById('btn-view-src');
+    const btnCopyMermaid = document.getElementById('btn-copy-mermaid');
+    const btnExportSvg = document.getElementById('btn-export-svg');
+    const btnRetry = document.getElementById('btn-retry');
+
+    const modalSource = document.getElementById('modal-source');
+    const modalCode = document.getElementById('modal-code');
+    const btnModalClose = document.getElementById('btn-modal-close');
+    const toast = document.getElementById('toast');
+
+    // Pan / Zoom State
+    let zoomScale = 1;
+    let panX = 0;
+    let panY = 0;
+    const MIN_ZOOM = 0.10;
+    const MAX_ZOOM = 3.00;
+
+    function applyCanvasTransform() {
+      if (diagramWrapper) {
+        diagramWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
+      }
+    }
+
+    function updateZoomLabel() {
+      if (zoomLabel) {
+        zoomLabel.textContent = Math.round(zoomScale * 100) + '%';
+      }
+    }
+
+    // Auto-calculate zoom level to fit entire diagram's bounding box within canvas area
+    function fitToScreen() {
+      if (!diagramViewport || diagramViewport.style.display === 'none') return;
+      const svg = diagramViewport.querySelector('svg');
+      if (!svg) return;
+
+      let svgWidth = 0;
+      let svgHeight = 0;
+
+      try {
+        const bbox = svg.getBBox();
+        if (bbox && bbox.width > 0 && bbox.height > 0) {
+          svgWidth = bbox.width;
+          svgHeight = bbox.height;
+        }
+      } catch (_) {}
+
+      if (!svgWidth || !svgHeight) {
+        const viewBox = svg.viewBox?.baseVal;
+        if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+          svgWidth = viewBox.width;
+          svgHeight = viewBox.height;
+        } else {
+          svgWidth = parseFloat(svg.getAttribute('width')) || svg.clientWidth || 1000;
+          svgHeight = parseFloat(svg.getAttribute('height')) || svg.clientHeight || 800;
+        }
+      }
+
+      const rect = diagramViewport.getBoundingClientRect();
+      const vWidth = rect.width;
+      const vHeight = rect.height;
+      if (!vWidth || !vHeight || !svgWidth || !svgHeight) return;
+
+      const pad = 44; // 44px breathing margin
+      const scaleX = (vWidth - pad * 2) / svgWidth;
+      const scaleY = (vHeight - pad * 2) / svgHeight;
+      let fitScale = Math.min(scaleX, scaleY);
+
+      // Keep small diagrams crisp at 1.0 max initial zoom, bound within [0.10, 3.00]
+      if (fitScale > 1.0) fitScale = 1.0;
+      fitScale = Math.min(Math.max(fitScale, MIN_ZOOM), MAX_ZOOM);
+
+      zoomScale = fitScale;
+      panX = (vWidth - svgWidth * fitScale) / 2;
+      panY = (vHeight - svgHeight * fitScale) / 2;
+
+      applyCanvasTransform();
+      updateZoomLabel();
+    }
+
+    // Mouse: scroll wheel to zoom (centered on cursor position)
+    diagramViewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = diagramViewport.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+
+      const zoomFactor = e.deltaY < 0 ? 1.15 : (1 / 1.15);
+      const newScale = Math.min(Math.max(zoomScale * zoomFactor, MIN_ZOOM), MAX_ZOOM);
+
+      if (newScale !== zoomScale) {
+        panX = cursorX - ((cursorX - panX) / zoomScale) * newScale;
+        panY = cursorY - ((cursorY - panY) / zoomScale) * newScale;
+        zoomScale = newScale;
+        applyCanvasTransform();
+        updateZoomLabel();
+      }
+    }, { passive: false });
+
+    // Mouse: click-drag to pan
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startPanX = 0;
+    let startPanY = 0;
+
+    diagramViewport.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (e.target.closest('#canvas-controls') || e.target.closest('#btn-exit-fullscreen')) return;
+
+      isDragging = true;
+      diagramViewport.classList.add('panning');
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      startPanX = panX;
+      startPanY = panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      panX = startPanX + (e.clientX - dragStartX);
+      panY = startPanY + (e.clientY - dragStartY);
+      applyCanvasTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        diagramViewport.classList.remove('panning');
+      }
+    });
+
+    // Touch: pinch to zoom & single-finger drag to pan
+    let isTouchDragging = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartPanX = 0;
+    let touchStartPanY = 0;
+    let initialPinchDist = null;
+    let initialPinchScale = 1;
+    let pinchCenterContentX = 0;
+    let pinchCenterContentY = 0;
+
+    diagramViewport.addEventListener('touchstart', (e) => {
+      if (e.target.closest('#canvas-controls') || e.target.closest('#btn-exit-fullscreen')) return;
+      if (e.touches.length === 1) {
+        isTouchDragging = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartPanX = panX;
+        touchStartPanY = panY;
+        initialPinchDist = null;
+      } else if (e.touches.length === 2) {
+        isTouchDragging = false;
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        initialPinchDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        initialPinchScale = zoomScale;
+
+        const rect = diagramViewport.getBoundingClientRect();
+        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
+        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
+
+        pinchCenterContentX = (midX - panX) / zoomScale;
+        pinchCenterContentY = (midY - panY) / zoomScale;
+      }
+    }, { passive: true });
+
+    diagramViewport.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && isTouchDragging) {
+        panX = touchStartPanX + (e.touches[0].clientX - touchStartX);
+        panY = touchStartPanY + (e.touches[0].clientY - touchStartY);
+        applyCanvasTransform();
+      } else if (e.touches.length === 2 && initialPinchDist) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const factor = currentDist / initialPinchDist;
+        const newScale = Math.min(Math.max(initialPinchScale * factor, MIN_ZOOM), MAX_ZOOM);
+
+        const rect = diagramViewport.getBoundingClientRect();
+        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
+        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
+
+        panX = midX - pinchCenterContentX * newScale;
+        panY = midY - pinchCenterContentY * newScale;
+        zoomScale = newScale;
+
+        applyCanvasTransform();
+        updateZoomLabel();
+      }
+    }, { passive: true });
+
+    diagramViewport.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        isTouchDragging = false;
+        initialPinchDist = null;
+      } else if (e.touches.length === 1) {
+        isTouchDragging = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartPanX = panX;
+        touchStartPanY = panY;
+        initialPinchDist = null;
+      }
+    });
+
+    // On-screen Zoom Buttons
+    function zoomByFactor(factor) {
+      const rect = diagramViewport.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const newScale = Math.min(Math.max(zoomScale * factor, MIN_ZOOM), MAX_ZOOM);
+      if (newScale !== zoomScale) {
+        panX = centerX - ((centerX - panX) / zoomScale) * newScale;
+        panY = centerY - ((centerY - panY) / zoomScale) * newScale;
+        zoomScale = newScale;
+        applyCanvasTransform();
+        updateZoomLabel();
+      }
+    }
+
+    btnZoomIn.addEventListener('click', () => zoomByFactor(1.25));
+    btnZoomOut.addEventListener('click', () => zoomByFactor(0.8));
+    btnZoomReset.addEventListener('click', () => fitToScreen());
+
+    // Fullscreen Controls
+    async function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        try {
+          if (canvasContainer.requestFullscreen) {
+            await canvasContainer.requestFullscreen();
+          } else if (canvasContainer.webkitRequestFullscreen) {
+            await canvasContainer.webkitRequestFullscreen();
+          }
+        } catch (err) {
+          console.error('Fullscreen request error:', err);
+        }
+      } else {
+        try {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            await document.webkitExitFullscreen();
+          }
+        } catch (err) {
+          console.error('Exit fullscreen error:', err);
+        }
+      }
+    }
+
+    btnFullscreen.addEventListener('click', toggleFullscreen);
+    btnExitFullscreen.addEventListener('click', () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+      }
+    });
+
+    // Re-run fit-to-screen automatically when entering/exiting fullscreen or resizing
+    function onViewportResize() {
+      setTimeout(fitToScreen, 120);
+    }
+    document.addEventListener('fullscreenchange', onViewportResize);
+    document.addEventListener('webkitfullscreenchange', onViewportResize);
+    window.addEventListener('resize', () => {
+      if (diagramViewport.style.display !== 'none') {
+        fitToScreen();
+      }
+    });
+
+    // Restore last URL from localStorage as a non-critical nicety
+    try {
+      const savedUrl = localStorage.getItem('last_repo_url');
+      if (savedUrl) inputUrl.value = savedUrl;
+    } catch (_) {}
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // Quick demo buttons
+    document.querySelectorAll('.quick-demo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        inputUrl.value = btn.dataset.url;
+        submitAnalysis();
+      });
+    });
+
+    btnRetry.addEventListener('click', () => {
+      submitAnalysis();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAnalysis();
+    });
+
+    async function submitAnalysis() {
+      const url = inputUrl.value.trim();
+      if (!url) return;
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('last_repo_url', url);
+      } catch (_) {}
+
+      // UI loading state
+      btnSubmit.disabled = true;
+      emptyState.style.display = 'none';
+      errorState.style.display = 'none';
+      diagramViewport.style.display = 'none';
+      canvasControls.style.display = 'none';
+      loadingState.style.display = 'flex';
+      resultsGroup.style.display = 'none';
+      narrationBox.style.display = 'none';
+      if (collapseBanner) collapseBanner.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: url,
+            narrate: checkboxNarrate.checked
+          })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(data.error || 'Failed to analyze repository.');
+        }
+
+        currentMermaidSource = data.mermaid;
+
+        // Update stats immediately
+        if (data.stats) {
+          statFiles.textContent = data.stats.files || 0;
+          statNodes.textContent = data.stats.nodes || 0;
+          statEdges.textContent = data.stats.edges || 0;
+          resultsGroup.style.display = 'flex';
+
+          if (data.stats.collapsed) {
+            let msg = data.stats.banner_text;
+            if (!msg) {
+              if (data.stats.collapse_level === 'functions-and-classes-hidden' || (data.stats.classes_hidden && data.stats.classes_hidden > 0)) {
+                msg = `Showing modules only — ${data.stats.classes_hidden} classes and ${data.stats.functions_hidden} functions hidden (repo exceeds 150 nodes)`;
+              } else {
+                msg = `Showing modules and classes only — ${data.stats.functions_hidden} functions hidden (repo exceeds 150 nodes)`;
+              }
+            }
+            if (collapseBannerText) {
+              collapseBannerText.textContent = msg;
+            }
+            if (collapseBanner) collapseBanner.style.display = 'flex';
+          } else {
+            if (collapseBanner) collapseBanner.style.display = 'none';
+          }
+        } else {
+          if (collapseBanner) collapseBanner.style.display = 'none';
+        }
+
+        // Render Mermaid Diagram
+        loadingState.style.display = 'none';
+        diagramWrapper.innerHTML = '<div class="mermaid">' + currentMermaidSource + '</div>';
+        diagramViewport.style.display = 'block';
+        canvasControls.style.display = 'flex';
+
+        await mermaid.run({ nodes: diagramWrapper.querySelectorAll('.mermaid') });
+
+        // Auto-calculate zoom level to fit entire diagram bounding box
+        requestAnimationFrame(() => {
+          fitToScreen();
+          setTimeout(fitToScreen, 120);
+        });
+
+        // Update Narration if present
+        if (data.narration) {
+          narrationText.textContent = data.narration;
+          narrationBox.style.display = 'block';
+        } else {
+          narrationBox.style.display = 'none';
+        }
+
+      } catch (err) {
+        loadingState.style.display = 'none';
+        canvasControls.style.display = 'none';
+        diagramViewport.style.display = 'none';
+        if (collapseBanner) collapseBanner.style.display = 'none';
+        errorMessage.textContent = err.message || 'An unexpected error occurred.';
+        errorState.style.display = 'flex';
+      } finally {
+        btnSubmit.disabled = false;
+      }
+    }
+
+    // Modal & Action handlers
+    btnViewSrc.addEventListener('click', () => {
+      modalCode.textContent = currentMermaidSource;
+      modalSource.style.display = 'flex';
+    });
+
+    btnModalClose.addEventListener('click', () => {
+      modalSource.style.display = 'none';
+    });
+
+    modalSource.addEventListener('click', (e) => {
+      if (e.target === modalSource) modalSource.style.display = 'none';
+    });
+
+    btnCopyMermaid.addEventListener('click', async () => {
+      if (!currentMermaidSource) return;
+      try {
+        await navigator.clipboard.writeText(currentMermaidSource);
+        showToast('Mermaid code copied to clipboard!');
+      } catch (err) {
+        showToast('Failed to copy');
+      }
+    });
+
+    btnExportSvg.addEventListener('click', () => {
+      const svg = diagramViewport.querySelector('svg');
+      if (!svg) return;
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'architecture_diagram.svg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      showToast('SVG exported successfully!');
+    });
+  </script>
+</body>
+</html>

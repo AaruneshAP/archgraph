@@ -1,0 +1,33 @@
+# Environment and credentials
+.env
+.env.local
+.env.*.local
+
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# Node / Dependencies
+node_modules/
+
+# Vercel CLI
+.vercel/
+
+# Generated runtime and test artifacts
+diff_graph.json
+graph.json
+graph.html
+graph.mmd
+self.json
+self.html
+self.mmd
+*.log
+../diff_test/
+Architecture Diagram Viewer.html
+
+# IDE configuration
+.agents/
