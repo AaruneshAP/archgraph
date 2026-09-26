@@ -1150,13 +1150,18 @@
       const scaleY = (vHeight - pad * 2) / svgHeight;
       let fitScale = Math.min(scaleX, scaleY);
 
-      // Keep small diagrams crisp at 1.0 max initial zoom, bound within [0.10, 3.00]
+      // Keep small diagrams crisp at 1.0 max initial zoom, floor initial scale at 0.45 for legibility
+      if (fitScale < 0.45) fitScale = 0.45;
       if (fitScale > 1.0) fitScale = 1.0;
       fitScale = Math.min(Math.max(fitScale, MIN_ZOOM), MAX_ZOOM);
 
       zoomScale = fitScale;
       panX = (vWidth - svgWidth * fitScale) / 2;
-      panY = (vHeight - svgHeight * fitScale) / 2;
+      if (svgHeight * fitScale > vHeight - pad * 2) {
+        panY = pad;
+      } else {
+        panY = (vHeight - svgHeight * fitScale) / 2;
+      }
 
       applyCanvasTransform();
       updateZoomLabel();
