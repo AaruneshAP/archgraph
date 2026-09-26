@@ -1,8 +1,10 @@
 # Codebase Architecture Visualizer
 
+> 🚀 **Try it live:** [https://archgraph.vercel.app](https://archgraph.vercel.app)
+
 > Turn any Python codebase into an interactive, high-level architectural diagram with dependency mapping, git revision diffing, and AI-powered narration.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-3B82C4?style=for-the-badge&logo=vercel)](https://temporary-nimble-lute-j1oxagn.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-3B82C4?style=for-the-badge&logo=vercel)](https://archgraph.vercel.app)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![Free Tier](https://img.shields.io/badge/Cost-100%25%20Free%20Tier-success?style=for-the-badge)](#tech-stack)
@@ -12,7 +14,7 @@
 ## Live Demo
 
 Explore public GitHub repositories directly in the browser:  
-🔗 **[https://temporary-nimble-lute-j1oxagn.vercel.app](https://temporary-nimble-lute-j1oxagn.vercel.app)**
+🔗 **[https://archgraph.vercel.app](https://archgraph.vercel.app)**
 
 ---
 
@@ -263,8 +265,8 @@ GitHub / Local Repo ──> AST Parser ──> Structural Graph ──> LoD Filt
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/owner/codebase-architecture-visualizer.git
-cd codebase-architecture-visualizer
+git clone https://github.com/AaruneshAP/archgraph.git
+cd archgraph
 pip install -r requirements.txt
 ```
 
