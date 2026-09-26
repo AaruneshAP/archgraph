@@ -1,10 +1,10 @@
 # Codebase Architecture Visualizer
 
-> 🚀 **Try it live:** [https://archgraph.vercel.app](https://archgraph.vercel.app)
+> 🚀 **Try it live:** [https://archgraph-ten.vercel.app](https://archgraph-ten.vercel.app)
 
 > Turn any Python codebase into an interactive, high-level architectural diagram with dependency mapping, git revision diffing, and AI-powered narration.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-3B82C4?style=for-the-badge&logo=vercel)](https://archgraph.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-3B82C4?style=for-the-badge&logo=vercel)](https://archgraph-ten.vercel.app)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![Free Tier](https://img.shields.io/badge/Cost-100%25%20Free%20Tier-success?style=for-the-badge)](#tech-stack)
@@ -14,7 +14,7 @@
 ## Live Demo
 
 Explore public GitHub repositories directly in the browser:  
-🔗 **[https://archgraph.vercel.app](https://archgraph.vercel.app)**
+🔗 **[https://archgraph-ten.vercel.app](https://archgraph-ten.vercel.app)**
 
 ---
 
