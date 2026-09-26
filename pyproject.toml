@@ -1,0 +1,12 @@
+[project]
+name = "codebase-architecture-diagram"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "GitPython>=3.1.40",
+    "groq>=0.11.0",
+    "python-dotenv>=1.0.0"
+]
+
+[tool.vercel]
+entrypoint = "api.analyze:handler"
